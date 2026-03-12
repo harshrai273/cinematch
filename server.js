@@ -15,7 +15,13 @@ const JWT_SECRET = process.env.JWT_SECRET || "change_me_in_production"
 
 app.use(cors())
 app.use(express.json())
-app.use(express.static(__dirname))
+
+const path = require("path")
+app.use(express.static(path.join(__dirname, "public")))
+
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"))
+})
 
 mongoose.connect(process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/movieApp")
   .then(() => console.log("✅ MongoDB connected"))
