@@ -1,375 +1,951 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>CineMatch</title>
-<style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#0a0a0a;--bg2:#111;--bg3:#1a1a1a;--bg4:#222;
-  --border:#2a2a2a;--text:#e8e8e8;--muted:#888;--dim:#555;
-  --red:#e50914;--green:#22c55e;--yellow:#eab308;--blue:#3b82f6;
-}
-body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh}
-input,button,select{font-family:inherit}
-button{cursor:pointer;border:none;outline:none;transition:all .18s}
-input{outline:none}
-img{display:block}
-::-webkit-scrollbar{width:5px}
-::-webkit-scrollbar-track{background:var(--bg)}
-::-webkit-scrollbar-thumb{background:#333;border-radius:3px}
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CineMatch — Find Your Next Obsession</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:        #080808;
+      --bg2:       #111111;
+      --bg3:       #1a1a1a;
+      --border:    rgba(255,255,255,0.07);
+      --accent:    #e8272e;
+      --accent2:   #ff6b35;
+      --gold:      #f5c842;
+      --text:      #f0f0f0;
+      --muted:     #666;
+      --muted2:    #444;
+      --green:     #22c55e;
+      --blue:      #3b82f6;
+      --card-w:    180px;
+    }
 
-/* ── AUTH ─────────────────────────────────────────────────────────────────── */
-#auth-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;
-  background:radial-gradient(ellipse at 50% 0%,rgba(229,9,20,.15) 0%,transparent 60%),var(--bg)}
-.auth-box{background:rgba(15,15,15,.98);border:1px solid #2a2a2a;border-radius:16px;
-  padding:40px 36px;width:100%;max-width:420px;box-shadow:0 24px 60px rgba(0,0,0,.8)}
-.auth-logo{font-size:28px;font-weight:900;letter-spacing:2px;color:var(--red);margin-bottom:6px}
-.auth-sub{color:var(--muted);font-size:13px;margin-bottom:28px}
-.auth-tabs{display:flex;background:#1a1a1a;border-radius:10px;padding:3px;margin-bottom:24px;gap:3px}
-.auth-tab{flex:1;padding:9px;border-radius:8px;background:transparent;color:var(--muted);font-weight:600;font-size:13px;transition:all .2s}
-.auth-tab.active{background:var(--red);color:#fff}
-.auth-form{display:none}
-.field-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--dim);margin-bottom:6px}
-.field-input{width:100%;background:#1a1a1a;border:1px solid var(--border);border-radius:9px;
-  padding:12px 14px;color:var(--text);font-size:14px;transition:border-color .2s;margin-bottom:14px}
-.field-input:focus{border-color:var(--red)}
-.auth-btn{width:100%;padding:13px;background:var(--red);color:#fff;font-weight:700;font-size:15px;border-radius:10px;margin-top:4px}
-.auth-btn:hover{background:#ff1a1a}
-.auth-error{color:#f87171;font-size:12px;margin-top:-8px;margin-bottom:10px;min-height:18px}
-.auth-switch{margin-top:16px;text-align:center;color:var(--muted);font-size:13px}
-.auth-switch span{color:var(--red);cursor:pointer;font-weight:600}
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* ── APP ──────────────────────────────────────────────────────────────────── */
-#app-screen{display:none}
-.navbar{position:sticky;top:0;z-index:100;display:flex;align-items:center;gap:4px;
-  padding:0 20px;height:56px;background:rgba(10,10,10,.97);
-  border-bottom:1px solid var(--border);backdrop-filter:blur(16px)}
-.nav-logo{font-size:20px;font-weight:900;letter-spacing:2px;color:var(--red);margin-right:12px;flex-shrink:0}
-.nav-link{padding:7px 13px;border-radius:8px;background:transparent;color:var(--muted);font-size:13px;font-weight:500}
-.nav-link:hover{background:#1a1a1a;color:var(--text)}
-.nav-link.active{background:rgba(229,9,20,.15);color:var(--red);font-weight:700}
-.nav-right{margin-left:auto;display:flex;align-items:center;gap:10px}
-.nav-user{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:7px}
-.nav-avatar{width:28px;height:28px;border-radius:50%;background:var(--red);
-  display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff}
-.nav-logout{padding:6px 12px;background:#1a1a1a;color:var(--muted);border-radius:7px;font-size:12px}
-.nav-logout:hover{color:var(--red)}
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
 
-/* ── VIEWS ────────────────────────────────────────────────────────────────── */
-.view{display:none;padding:24px 20px;max-width:1300px;margin:0 auto;animation:fadeIn .25s ease}
-.view.active{display:block}
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-.view-title{font-size:22px;font-weight:800;letter-spacing:.5px;margin-bottom:4px}
-.view-title span{color:var(--red)}
-.section-title{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:2px;
-  color:var(--muted);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--muted2); border-radius: 2px; }
 
-/* ── SEARCH ───────────────────────────────────────────────────────────────── */
-.search-bar{display:flex;gap:8px;margin-bottom:24px}
-.search-input{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:10px;
-  padding:12px 16px;color:var(--text);font-size:15px}
-.search-input:focus{border-color:var(--red)}
-.search-btn{padding:12px 24px;background:var(--red);color:#fff;border-radius:10px;font-weight:700;font-size:14px}
-.search-btn:hover{background:#ff1a1a}
+    /* ══════════════════════════════════════
+       AUTH SCREEN
+    ══════════════════════════════════════ */
+    #auth-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
 
-/* ── MOVIE GRID + CARDS ───────────────────────────────────────────────────── */
-.movie-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px}
-.movie-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;
-  overflow:hidden;transition:all .2s;display:flex;flex-direction:column}
-.movie-card:hover{border-color:#3a3a3a;transform:translateY(-3px);box-shadow:0 12px 36px rgba(0,0,0,.6)}
-.movie-poster-wrap{position:relative;flex-shrink:0;cursor:pointer}
-.movie-poster-wrap img{width:100%;height:200px;object-fit:cover;background:#1a1a1a;display:block}
-.imdb-badge{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.85);
-  color:#f5c518;font-size:11px;font-weight:800;padding:3px 8px;border-radius:6px}
-.type-badge{position:absolute;top:8px;left:8px;background:rgba(59,130,246,.9);
-  color:#fff;font-size:9px;font-weight:800;padding:2px 7px;border-radius:5px;letter-spacing:.8px}
-.poster-overlay{position:absolute;inset:0;background:rgba(0,0,0,0);display:flex;align-items:center;
-  justify-content:center;transition:background .2s;font-size:32px;opacity:0}
-.movie-poster-wrap:hover .poster-overlay{background:rgba(0,0,0,.55);opacity:1}
-.movie-card-info{padding:12px;display:flex;flex-direction:column;gap:7px;flex:1}
-.movie-card-title{font-size:14px;font-weight:700;line-height:1.3;cursor:pointer;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text)}
-.movie-card-title:hover{color:var(--red)}
-.movie-card-meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
-.genre-tag{background:rgba(229,9,20,.12);color:var(--red);padding:2px 8px;
-  border-radius:20px;font-size:10px;font-weight:700;white-space:nowrap}
-.movie-plot{font-size:12px;color:#777;line-height:1.6;
-  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;
-  overflow:hidden;line-clamp:3}
-.match-bar-wrap{margin-top:2px}
-.match-bar-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--dim);margin-bottom:3px}
-.match-bar-bg{height:3px;background:#2a2a2a;border-radius:2px}
-.match-bar-fill{height:3px;border-radius:2px;transition:width .5s ease}
-.streaming-row{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin-top:2px}
-.streaming-label{font-size:10px;color:var(--dim);font-weight:600;flex-shrink:0}
-.platform-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;color:#fff;white-space:nowrap}
-.action-btns{display:flex;flex-wrap:wrap;gap:4px;margin-top:auto;padding-top:4px}
-.action-btn{flex:1;min-width:52px;padding:6px 4px;background:#1a1a1a;border:1px solid var(--border);
-  color:var(--muted);border-radius:7px;font-size:11px;font-weight:600;text-align:center}
-.action-btn:hover{background:#222;color:var(--text);border-color:#444}
-.action-btn.liked{background:rgba(239,68,68,.18);border-color:#ef4444;color:#ef4444}
-.action-btn.watched{background:rgba(34,197,94,.18);border-color:#22c55e;color:#22c55e}
-.action-btn.disliked{background:rgba(100,116,139,.18);border-color:#64748b;color:#64748b}
-.action-btn.skipped{background:rgba(234,179,8,.18);border-color:#eab308;color:#eab308}
-.action-btn.saved{background:rgba(59,130,246,.18);border-color:#3b82f6;color:#3b82f6}
-#rec-basis{font-size:13px;color:var(--muted);margin-bottom:18px;min-height:20px}
-.refresh-btn{padding:9px 18px;background:#1a1a1a;border:1px solid var(--border);color:var(--muted);
-  border-radius:9px;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:6px}
-.refresh-btn:hover{border-color:#444;color:var(--text)}
+    .auth-bg {
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 50%, rgba(232,39,46,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 80% at 80% 20%, rgba(255,107,53,0.08) 0%, transparent 60%),
+        repeating-linear-gradient(0deg, transparent, transparent 80px, rgba(255,255,255,0.012) 80px, rgba(255,255,255,0.012) 81px),
+        repeating-linear-gradient(90deg, transparent, transparent 80px, rgba(255,255,255,0.012) 80px, rgba(255,255,255,0.012) 81px);
+    }
 
-/* ── SPINNER ──────────────────────────────────────────────────────────────── */
-.spinner{display:flex;align-items:center;justify-content:center;gap:12px;padding:64px;color:var(--muted);font-size:14px}
-.spin-ring{width:22px;height:22px;border:2.5px solid #2a2a2a;border-top-color:var(--red);
-  border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
-@keyframes spin{to{transform:rotate(360deg)}}
-.empty-state{text-align:center;padding:64px 32px;color:var(--muted)}
-.empty-state .icon{font-size:48px;margin-bottom:14px}
+    .auth-logo {
+      position: absolute;
+      top: 32px; left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 28px;
+      letter-spacing: 6px;
+      color: var(--accent);
+    }
 
-/* ── FRIENDS / PROFILE ────────────────────────────────────────────────────── */
-.friends-search{display:flex;gap:8px;margin-bottom:18px}
-.friends-input{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:9px;
-  padding:11px 14px;color:var(--text);font-size:14px}
-.friends-input:focus{border-color:var(--blue)}
-.user-row{display:flex;align-items:center;gap:10px;padding:12px 14px;
-  background:var(--bg3);border-radius:9px;border:1px solid var(--border);margin-bottom:8px}
-.user-avatar{width:36px;height:36px;border-radius:50%;background:var(--red);
-  display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0}
-.user-name{font-weight:600;font-size:14px;flex:1}
-.btn-sm{padding:6px 13px;background:var(--bg4);border:1px solid var(--border);
-  color:var(--muted);border-radius:7px;font-size:12px;font-weight:600}
-.btn-sm:hover{border-color:#555;color:var(--text)}
-.taste-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
-.taste-item{background:var(--bg3);border-radius:10px;padding:14px;border:1px solid var(--border)}
-.taste-label{font-size:13px;font-weight:700;margin-bottom:8px}
-.taste-bar-bg{height:6px;background:#2a2a2a;border-radius:3px;overflow:hidden}
-.taste-bar{height:6px;background:var(--red);border-radius:3px;transition:width .5s ease}
+    .auth-box {
+      position: relative;
+      width: 100%;
+      max-width: 420px;
+      margin: 20px;
+      background: rgba(17,17,17,0.92);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 40px 36px;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(232,39,46,0.1);
+      animation: fadeUp .4s ease;
+    }
 
-/* ── TOAST ────────────────────────────────────────────────────────────────── */
-#toast{display:none;position:fixed;bottom:24px;right:24px;z-index:9999;
-  background:#1a1a1a;border-left:4px solid var(--red);border-radius:8px;
-  padding:13px 18px;font-size:13px;font-weight:600;color:var(--text);
-  box-shadow:0 8px 32px rgba(0,0,0,.7);animation:toastIn .3s ease;max-width:280px}
-@keyframes toastIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   MOVIE DETAIL MODAL
-═══════════════════════════════════════════════════════════════════════════ */
-#movie-modal{
-  display:none;position:fixed;inset:0;z-index:500;
-  align-items:center;justify-content:center;
-  background:rgba(0,0,0,.85);backdrop-filter:blur(8px);
-  padding:20px;animation:fadeIn .2s ease;
-}
-.modal-box{
-  background:#111;border:1px solid #2a2a2a;border-radius:18px;
-  width:100%;max-width:820px;max-height:90vh;overflow-y:auto;
-  position:relative;box-shadow:0 32px 80px rgba(0,0,0,.9);
-  animation:modalUp .25s ease;
-}
-@keyframes modalUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:none}}
-.modal-close{
-  position:sticky;top:0;float:right;z-index:10;
-  margin:14px 14px 0 0;
-  width:34px;height:34px;border-radius:50%;
-  background:rgba(30,30,30,.95);border:1px solid #333;
-  color:#aaa;font-size:18px;line-height:1;
-  display:flex;align-items:center;justify-content:center;
-}
-.modal-close:hover{background:#222;color:#fff}
+    .auth-headline {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 42px;
+      letter-spacing: 2px;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
 
-/* Hero banner with blurred poster bg */
-.modal-hero{
-  position:relative;height:220px;overflow:hidden;border-radius:18px 18px 0 0;
-  display:flex;align-items:flex-end;flex-shrink:0;
-}
-.modal-hero-bg{
-  position:absolute;inset:0;background-size:cover;background-position:center top;
-  filter:blur(18px) brightness(.35);transform:scale(1.1);
-}
-.modal-hero-poster{
-  position:relative;z-index:1;width:130px;height:190px;object-fit:cover;
-  border-radius:10px;margin:0 0 -50px 28px;
-  box-shadow:0 16px 48px rgba(0,0,0,.8);border:2px solid #2a2a2a;flex-shrink:0;
-}
-.modal-hero-titles{
-  position:relative;z-index:1;padding:0 24px 16px 20px;flex:1;min-width:0;
-}
-.modal-hero-title{font-size:26px;font-weight:900;line-height:1.15;
-  text-shadow:0 2px 12px rgba(0,0,0,.8);margin-bottom:6px}
-.modal-hero-meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.modal-badge{padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700;
-  background:rgba(255,255,255,.12);color:#ddd;border:1px solid rgba(255,255,255,.15)}
-.modal-badge.imdb{background:rgba(245,197,24,.15);color:#f5c518;border-color:rgba(245,197,24,.3)}
-.modal-badge.rated{background:rgba(100,116,139,.2);color:#94a3b8}
-.modal-badge.type{background:rgba(59,130,246,.2);color:#60a5fa}
+    .auth-headline span { color: var(--accent); }
 
-/* Body */
-.modal-body{padding:64px 28px 28px}
-.modal-plot{font-size:15px;color:#bbb;line-height:1.75;margin-bottom:24px}
-.modal-row{display:flex;gap:32px;flex-wrap:wrap;margin-bottom:20px}
-.modal-col{flex:1;min-width:200px}
-.modal-label{font-size:10px;font-weight:800;text-transform:uppercase;
-  letter-spacing:1.5px;color:#555;margin-bottom:6px}
-.modal-value{font-size:14px;color:#ccc;line-height:1.6}
-.modal-genres{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:22px}
-.modal-genre-tag{padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;
-  background:rgba(229,9,20,.15);color:var(--red);border:1px solid rgba(229,9,20,.25)}
-.modal-streaming{margin-bottom:24px}
-.modal-streaming-title{font-size:10px;font-weight:800;text-transform:uppercase;
-  letter-spacing:1.5px;color:#555;margin-bottom:10px}
-.modal-platforms{display:flex;flex-wrap:wrap;gap:8px}
-.modal-platform{padding:7px 16px;border-radius:8px;font-size:13px;font-weight:700;color:#fff}
-.modal-actions{display:flex;flex-wrap:wrap;gap:8px;padding-top:20px;border-top:1px solid #1e1e1e}
-.modal-action-btn{flex:1;min-width:100px;padding:11px 8px;border-radius:9px;font-size:13px;
-  font-weight:700;background:#1a1a1a;border:1px solid #2a2a2a;color:#888;text-align:center}
-.modal-action-btn:hover{border-color:#444;color:#fff}
-.modal-action-btn.liked{background:rgba(239,68,68,.18);border-color:#ef4444;color:#ef4444}
-.modal-action-btn.watched{background:rgba(34,197,94,.18);border-color:#22c55e;color:#22c55e}
-.modal-action-btn.disliked{background:rgba(100,116,139,.18);border-color:#64748b;color:#64748b}
-.modal-action-btn.skipped{background:rgba(234,179,8,.18);border-color:#eab308;color:#eab308}
-.modal-action-btn.saved{background:rgba(59,130,246,.18);border-color:#3b82f6;color:#3b82f6}
-.modal-ratings-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:22px}
-.modal-rating-box{background:#1a1a1a;border:1px solid #222;border-radius:10px;
-  padding:12px 16px;text-align:center;min-width:90px}
-.modal-rating-val{font-size:20px;font-weight:800;color:#f5c518}
-.modal-rating-src{font-size:10px;color:#555;margin-top:3px;text-transform:uppercase;letter-spacing:.5px}
+    .auth-sub {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 28px;
+      font-weight: 300;
+    }
 
-@media(max-width:600px){
-  .movie-grid{grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:10px}
-  .navbar{padding:0 10px;gap:1px}
-  .nav-link{padding:6px 8px;font-size:11px}
-  .view{padding:14px 10px}
-  .modal-hero{height:160px}
-  .modal-hero-poster{width:90px;height:135px;margin-bottom:-40px}
-  .modal-hero-title{font-size:18px}
-  .modal-body{padding:50px 16px 20px}
-  .modal-box{border-radius:14px}
-}
-</style>
+    .auth-tabs {
+      display: flex;
+      gap: 4px;
+      background: var(--bg);
+      border-radius: 8px;
+      padding: 4px;
+      margin-bottom: 24px;
+    }
+
+    .auth-tab {
+      flex: 1;
+      padding: 8px;
+      border: none;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      cursor: pointer;
+      transition: all .2s;
+    }
+
+    .auth-tab.active {
+      background: var(--accent);
+      color: white;
+    }
+
+    .field {
+      margin-bottom: 16px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: var(--muted);
+      margin-bottom: 7px;
+      font-weight: 600;
+    }
+
+    .field input {
+      width: 100%;
+      padding: 12px 14px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      outline: none;
+      transition: border-color .2s;
+    }
+
+    .field input:focus { border-color: var(--accent); }
+    .field input::placeholder { color: var(--muted2); }
+
+    .btn-primary {
+      width: 100%;
+      padding: 13px;
+      background: var(--accent);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: all .2s;
+      margin-top: 4px;
+    }
+
+    .btn-primary:hover { background: #c41f25; transform: translateY(-1px); }
+    .btn-primary:active { transform: translateY(0); }
+
+    .err-msg {
+      font-size: 12px;
+      color: #f87171;
+      text-align: center;
+      min-height: 18px;
+      margin-top: 10px;
+    }
+
+    /* ══════════════════════════════════════
+       APP SCREEN
+    ══════════════════════════════════════ */
+    #app-screen { display: none; }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      position: fixed;
+      top: 0; left: 0;
+      width: 220px;
+      height: 100vh;
+      background: var(--bg2);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+      padding: 0 0 20px;
+    }
+
+    .sidebar-logo {
+      padding: 28px 24px 24px;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 26px;
+      letter-spacing: 5px;
+      color: var(--accent);
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+
+    .sidebar-logo span { color: var(--text); font-size: 10px; letter-spacing: 3px; display: block; margin-top: 2px; font-family: 'DM Sans', sans-serif; font-weight: 300; }
+
+    .nav-section {
+      padding: 0 12px;
+      margin-bottom: 6px;
+    }
+
+    .nav-section-label {
+      font-size: 9px;
+      letter-spacing: 2.5px;
+      color: var(--muted2);
+      padding: 0 12px;
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      width: 100%;
+      text-align: left;
+      transition: all .15s;
+      position: relative;
+    }
+
+    .nav-link:hover { background: var(--bg3); color: var(--text); }
+
+    .nav-link.active {
+      background: rgba(232,39,46,0.12);
+      color: var(--text);
+    }
+
+    .nav-link.active::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 20%; bottom: 20%;
+      width: 3px;
+      background: var(--accent);
+      border-radius: 0 2px 2px 0;
+    }
+
+    .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+
+    .nav-badge {
+      margin-left: auto;
+      background: var(--accent);
+      color: white;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 10px;
+      min-width: 18px;
+      text-align: center;
+    }
+
+    .sidebar-user {
+      margin-top: auto;
+      padding: 16px 24px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .user-avatar {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .user-info { flex: 1; overflow: hidden; }
+    .user-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-role { font-size: 10px; color: var(--muted); letter-spacing: 1px; }
+
+    .btn-logout {
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 16px;
+      padding: 4px;
+      transition: color .2s;
+    }
+    .btn-logout:hover { color: var(--accent); }
+
+    /* ── Main content ── */
+    .main {
+      margin-left: 220px;
+      min-height: 100vh;
+      padding: 32px 36px;
+    }
+
+    /* ── Views ── */
+    .view { display: none; animation: fadeIn .25s ease; }
+    .view.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    /* ── Page header ── */
+    .page-header {
+      margin-bottom: 28px;
+    }
+
+    .page-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 36px;
+      letter-spacing: 2px;
+      line-height: 1;
+    }
+
+    .page-title span { color: var(--accent); }
+
+    .page-sub {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 4px;
+      font-weight: 300;
+    }
+
+    /* ── Search bar ── */
+    .search-wrap {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+
+    .search-input {
+      flex: 1;
+      padding: 13px 18px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      outline: none;
+      transition: border-color .2s;
+    }
+
+    .search-input:focus { border-color: var(--accent); }
+    .search-input::placeholder { color: var(--muted2); }
+
+    .btn-search {
+      padding: 13px 24px;
+      background: var(--accent);
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: background .2s;
+    }
+
+    .btn-search:hover { background: #c41f25; }
+
+    /* ── Movie grid ── */
+    .movie-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(var(--card-w), 1fr));
+      gap: 20px;
+    }
+
+    .movie-card {
+      background: var(--bg2);
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      transition: transform .2s, border-color .2s, box-shadow .2s;
+      cursor: pointer;
+    }
+
+    .movie-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(232,39,46,0.3);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    }
+
+    .card-poster {
+      width: 100%;
+      aspect-ratio: 2/3;
+      object-fit: cover;
+      display: block;
+      background: var(--bg3);
+    }
+
+    .card-body { padding: 12px; }
+
+    .card-title {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .card-meta {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .card-rating {
+      color: var(--gold);
+      font-weight: 600;
+    }
+
+    /* Match bar */
+    .match-bar-wrap {
+      margin-bottom: 10px;
+    }
+
+    .match-bar-top {
+      display: flex;
+      justify-content: space-between;
+      font-size: 9px;
+      letter-spacing: 1.5px;
+      color: var(--muted);
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+
+    .match-pct { font-weight: 700; }
+    .match-pct.high { color: var(--green); }
+    .match-pct.med  { color: var(--gold); }
+    .match-pct.low  { color: var(--accent); }
+
+    .match-bar-bg {
+      height: 2px;
+      background: var(--bg3);
+      border-radius: 1px;
+    }
+
+    .match-bar-fill {
+      height: 2px;
+      border-radius: 1px;
+      transition: width .5s ease;
+    }
+
+    .match-bar-fill.high { background: var(--green); }
+    .match-bar-fill.med  { background: var(--gold); }
+    .match-bar-fill.low  { background: var(--accent); }
+
+    /* Action buttons */
+    .action-btns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5px;
+    }
+
+    .action-btn {
+      padding: 6px 4px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .15s;
+      letter-spacing: .5px;
+    }
+
+    .action-btn:hover { background: var(--bg3); color: var(--text); }
+    .action-btn.liked    { border-color: #ef4444; color: #ef4444; background: rgba(239,68,68,.1); }
+    .action-btn.watched  { border-color: var(--green); color: var(--green); background: rgba(34,197,94,.1); }
+    .action-btn.disliked { border-color: var(--muted2); color: var(--muted); background: rgba(100,116,139,.1); }
+    .action-btn.skipped  { border-color: var(--gold); color: var(--gold); background: rgba(245,200,66,.1); }
+
+    /* Streaming badges */
+    .streaming-row {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .stream-badge {
+      font-size: 9px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: var(--bg3);
+      color: var(--muted);
+      border: 1px solid var(--border);
+      letter-spacing: .5px;
+      font-weight: 500;
+    }
+
+    /* ── Section title ── */
+    .section-title {
+      font-size: 10px;
+      letter-spacing: 3px;
+      color: var(--muted);
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+
+    /* ── Empty state ── */
+    .empty-state {
+      text-align: center;
+      padding: 80px 20px;
+      color: var(--muted);
+    }
+
+    .empty-icon { font-size: 48px; margin-bottom: 16px; opacity: .4; }
+    .empty-text { font-size: 14px; font-weight: 300; }
+
+    /* ── Spinner ── */
+    .spinner {
+      text-align: center;
+      padding: 60px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 300;
+      letter-spacing: 2px;
+    }
+
+    .spinner::after {
+      content: '';
+      display: block;
+      width: 32px; height: 32px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      margin: 16px auto 0;
+      animation: spin .8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Stats cards ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .stat-icon { font-size: 24px; margin-bottom: 8px; }
+    .stat-num { font-family: 'Bebas Neue', sans-serif; font-size: 36px; letter-spacing: 1px; line-height: 1; }
+    .stat-label { font-size: 10px; color: var(--muted); letter-spacing: 2px; margin-top: 4px; font-weight: 600; }
+
+    /* ── Taste bars ── */
+    .taste-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+
+    .taste-item {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+
+    .taste-label { font-size: 12px; font-weight: 600; margin-bottom: 8px; }
+    .taste-bg { height: 3px; background: var(--bg3); border-radius: 2px; }
+    .taste-fill { height: 3px; background: var(--accent); border-radius: 2px; transition: width .5s; }
+    .taste-pts { font-size: 11px; color: var(--accent); margin-top: 5px; font-weight: 600; }
+
+    /* ── Friend rows ── */
+    .user-list { display: flex; flex-direction: column; gap: 8px; }
+
+    .user-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 16px;
+      transition: border-color .15s;
+    }
+
+    .user-row:hover { border-color: rgba(232,39,46,0.2); }
+
+    .user-row-name { font-size: 14px; font-weight: 600; flex: 1; }
+    .user-row-sub { font-size: 11px; color: var(--muted); }
+
+    .btn-sm {
+      padding: 6px 14px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .15s;
+      white-space: nowrap;
+    }
+
+    .btn-sm:hover { background: var(--bg3); color: var(--text); }
+    .btn-sm.green { border-color: var(--green); color: var(--green); }
+    .btn-sm.green:hover { background: rgba(34,197,94,.1); }
+    .btn-sm.red { border-color: var(--accent); color: var(--accent); }
+    .btn-sm.red:hover { background: rgba(232,39,46,.1); }
+    .btn-sm.blue { border-color: var(--blue); color: var(--blue); }
+    .btn-sm.blue:hover { background: rgba(59,130,246,.1); }
+
+    /* ── Rec basis ── */
+    .rec-basis {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--muted);
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 5px 12px;
+      margin-bottom: 20px;
+      letter-spacing: .5px;
+    }
+
+    /* ── My List groups ── */
+    .list-group { margin-bottom: 36px; }
+
+    .list-group-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .list-group-title { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 2px; }
+    .list-group-count { font-size: 11px; color: var(--muted); background: var(--bg3); padding: 2px 8px; border-radius: 10px; }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed;
+      bottom: 24px; right: 24px;
+      padding: 12px 20px;
+      background: var(--bg2);
+      border-left: 3px solid var(--accent);
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      display: none;
+      z-index: 9999;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      animation: slideIn .2s ease;
+      max-width: 300px;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Movie detail modal ── */
+    #modal-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 500;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      backdrop-filter: blur(4px);
+    }
+
+    #modal-overlay.open { display: flex; }
+
+    .modal {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      max-width: 680px;
+      width: 100%;
+      max-height: 85vh;
+      overflow-y: auto;
+      animation: fadeUp .25s ease;
+    }
+
+    .modal-poster-strip {
+      width: 100%;
+      height: 280px;
+      object-fit: cover;
+      object-position: top;
+      display: block;
+      border-radius: 16px 16px 0 0;
+      background: var(--bg3);
+    }
+
+    .modal-body { padding: 24px 28px 28px; }
+
+    .modal-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 32px;
+      letter-spacing: 2px;
+      margin-bottom: 6px;
+    }
+
+    .modal-meta {
+      display: flex;
+      gap: 14px;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .modal-meta span { display: flex; align-items: center; gap: 4px; }
+    .modal-plot { font-size: 14px; line-height: 1.7; color: #bbb; font-weight: 300; margin-bottom: 20px; }
+
+    .modal-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .modal-close-btn {
+      position: absolute;
+      top: 16px; right: 16px;
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.6);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: 16px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .sidebar { width: 60px; }
+      .sidebar-logo span, .nav-link span:not(.nav-icon), .sidebar-user .user-info, .sidebar-user .btn-logout, .nav-section-label { display: none; }
+      .nav-link { justify-content: center; padding: 12px; }
+      .sidebar-logo { padding: 20px; text-align: center; font-size: 20px; }
+      .main { margin-left: 60px; padding: 20px 16px; }
+      .stats-grid { grid-template-columns: repeat(2,1fr); }
+    }
+  </style>
 </head>
 <body>
 
-<!-- ── AUTH ────────────────────────────────────────────────────────────────── -->
+<!-- ═══════════ AUTH ═══════════ -->
 <div id="auth-screen">
+  <div class="auth-bg"></div>
+  <div class="auth-logo">CINEMATCH</div>
+
   <div class="auth-box">
-    <div class="auth-logo">🎬 CINEMATCH</div>
-    <div class="auth-sub">Your personal movie recommendation engine</div>
+    <div class="auth-headline">YOUR NEXT<br><span>OBSESSION</span><br>AWAITS.</div>
+    <div class="auth-sub">Personalised film & series recommendations, powered by your taste.</div>
+
     <div class="auth-tabs">
-      <button class="auth-tab active" onclick="switchTab('login')">Sign In</button>
-      <button class="auth-tab"        onclick="switchTab('signup')">Sign Up</button>
+      <button class="auth-tab active" onclick="switchTab('login')">SIGN IN</button>
+      <button class="auth-tab" onclick="switchTab('signup')">JOIN FREE</button>
     </div>
-    <div id="login-form" class="auth-form" style="display:block">
-      <div class="field-label">Email</div>
-      <input id="login-email"    class="field-input" type="email"    placeholder="you@email.com"    onkeydown="if(event.key==='Enter')login()"/>
-      <div class="field-label">Password</div>
-      <input id="login-password" class="field-input" type="password" placeholder="••••••••"         onkeydown="if(event.key==='Enter')login()"/>
-      <div id="login-error" class="auth-error"></div>
-      <button class="auth-btn" onclick="login()">Sign In →</button>
+
+    <!-- Login -->
+    <div id="login-form">
+      <div class="field"><label>EMAIL ADDRESS</label><input type="email" id="login-email" placeholder="you@example.com"/></div>
+      <div class="field"><label>PASSWORD</label><input type="password" id="login-password" placeholder="••••••••"/></div>
+      <button class="btn-primary" onclick="login()">SIGN IN →</button>
+      <div class="err-msg" id="login-error"></div>
     </div>
-    <div id="signup-form" class="auth-form">
-      <div class="field-label">Username</div>
-      <input id="signup-username" class="field-input" type="text"     placeholder="your_username"/>
-      <div class="field-label">Email</div>
-      <input id="signup-email"    class="field-input" type="email"    placeholder="you@email.com"/>
-      <div class="field-label">Password</div>
-      <input id="signup-password" class="field-input" type="password" placeholder="min 4 chars"/>
-      <div class="field-label">Confirm Password</div>
-      <input id="signup-confirm"  class="field-input" type="password" placeholder="repeat password" onkeydown="if(event.key==='Enter')register()"/>
-      <div id="signup-error" class="auth-error"></div>
-      <button class="auth-btn" onclick="register()">Create Account →</button>
+
+    <!-- Signup -->
+    <div id="signup-form" style="display:none">
+      <div class="field"><label>USERNAME</label><input type="text" id="signup-username" placeholder="choose a username"/></div>
+      <div class="field"><label>EMAIL ADDRESS</label><input type="email" id="signup-email" placeholder="you@example.com"/></div>
+      <div class="field"><label>PASSWORD</label><input type="password" id="signup-password" placeholder="min 4 characters"/></div>
+      <div class="field"><label>CONFIRM PASSWORD</label><input type="password" id="signup-confirm" placeholder="••••••••"/></div>
+      <button class="btn-primary" onclick="register()">CREATE ACCOUNT →</button>
+      <div class="err-msg" id="signup-error"></div>
     </div>
-    <div class="auth-switch">No account? <span onclick="switchTab('signup')">Sign Up</span></div>
   </div>
 </div>
 
-<!-- ── APP ─────────────────────────────────────────────────────────────────── -->
+<!-- ═══════════ APP ═══════════ -->
 <div id="app-screen">
-  <nav class="navbar">
-    <div class="nav-logo">🎬 CINEMATCH</div>
-    <button class="nav-link active" onclick="showView('recommendations')">✦ For You</button>
-    <button class="nav-link"        onclick="showView('search')">🔍 Search</button>
-    <button class="nav-link"        onclick="showView('mylist')">📋 My List</button>
-    <button class="nav-link"        onclick="showView('friends')">👥 Friends</button>
-    <button class="nav-link"        onclick="showView('profile')">👤 Profile</button>
-    <div class="nav-right">
-      <div class="nav-user">
-        <div class="nav-avatar" id="nav-avatar">?</div>
-        <span id="nav-username"></span>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      CINE<span style="color:var(--text)">MATCH</span>
+      <span>DISCOVER · RATE · SHARE</span>
+    </div>
+
+    <div class="nav-section-label">DISCOVER</div>
+    <div class="nav-section">
+      <button class="nav-link active" onclick="showView('search', this)">
+        <span class="nav-icon">🔍</span><span>Search</span>
+      </button>
+      <button class="nav-link" onclick="showView('recommendations', this)">
+        <span class="nav-icon">✦</span><span>For You</span>
+      </button>
+    </div>
+
+    <div class="nav-section-label" style="margin-top:12px">LIBRARY</div>
+    <div class="nav-section">
+      <button class="nav-link" onclick="showView('mylist', this)">
+        <span class="nav-icon">📋</span><span>My List</span>
+      </button>
+      <button class="nav-link" onclick="showView('profile', this)">
+        <span class="nav-icon">📊</span><span>Taste Profile</span>
+      </button>
+    </div>
+
+    <div class="nav-section-label" style="margin-top:12px">SOCIAL</div>
+    <div class="nav-section">
+      <button class="nav-link" id="friends-nav-btn" onclick="showView('friends', this)">
+        <span class="nav-icon">👥</span><span>Friends</span>
+        <span class="nav-badge" id="friend-req-badge" style="display:none">0</span>
+      </button>
+    </div>
+
+    <div class="sidebar-user">
+      <div class="user-avatar" id="sidebar-avatar">?</div>
+      <div class="user-info">
+        <div class="user-name" id="sidebar-username">—</div>
+        <div class="user-role">MEMBER</div>
       </div>
-      <button class="nav-logout" onclick="logout()">Sign out</button>
+      <button class="btn-logout" onclick="logout()" title="Logout">↩</button>
     </div>
-  </nav>
+  </aside>
 
-  <div id="view-recommendations" class="view active">
-    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:8px">
-      <div class="view-title">✦ Recommended <span>For You</span></div>
-      <button class="refresh-btn" onclick="loadRecommendations()">🔄 Refresh</button>
+  <!-- Main -->
+  <main class="main">
+
+    <!-- SEARCH -->
+    <div id="view-search" class="view active">
+      <div class="page-header">
+        <div class="page-title">SEARCH <span>FILMS</span></div>
+        <div class="page-sub">Find any movie or series and rate it to train your recommendations</div>
+      </div>
+      <div class="search-wrap">
+        <input class="search-input" id="search-input" placeholder="Search movies, shows, directors..." onkeydown="if(event.key==='Enter') searchMovies()"/>
+        <button class="btn-search" onclick="searchMovies()">SEARCH</button>
+      </div>
+      <div id="search-results" class="movie-grid"></div>
     </div>
-    <div id="rec-basis"></div>
-    <div id="rec-results"><div class="spinner"><div class="spin-ring"></div> Loading…</div></div>
-  </div>
 
-  <div id="view-search" class="view">
-    <div class="view-title" style="margin-bottom:16px">🔍 Search <span>Movies</span></div>
-    <div class="search-bar">
-      <input id="search-input" class="search-input" type="text" placeholder="Search any movie or show…" onkeydown="if(event.key==='Enter')searchMovies()"/>
-      <button class="search-btn" onclick="searchMovies()">Search</button>
+    <!-- FOR YOU -->
+    <div id="view-recommendations" class="view">
+      <div class="page-header">
+        <div class="page-title">FOR <span>YOU</span></div>
+        <div class="page-sub">ML-powered picks based on your unique taste profile</div>
+      </div>
+      <div id="rec-basis"></div>
+      <div id="rec-results" class="movie-grid"></div>
     </div>
-    <div id="search-results"></div>
-  </div>
 
-  <div id="view-mylist" class="view">
-    <div class="view-title" style="margin-bottom:20px">📋 My <span>List</span></div>
-    <div id="mylist-content"></div>
-  </div>
-
-  <div id="view-friends" class="view">
-    <div class="view-title" style="margin-bottom:16px">👥 <span>Friends</span></div>
-    <div class="friends-search">
-      <input id="user-search-input" class="friends-input" type="text" placeholder="Search users by username…" onkeydown="if(event.key==='Enter')searchUsers()"/>
-      <button class="search-btn" onclick="searchUsers()">Find</button>
+    <!-- MY LIST -->
+    <div id="view-mylist" class="view">
+      <div class="page-header">
+        <div class="page-title">MY <span>LIST</span></div>
+        <div class="page-sub">Everything you've rated or saved</div>
+      </div>
+      <div id="mylist-content"></div>
     </div>
-    <div id="user-search-results"></div>
-    <div id="friend-requests-section"></div>
-    <div class="section-title">YOUR FRIENDS</div>
-    <div id="friends-list"></div>
-  </div>
 
-  <div id="view-profile" class="view">
-    <div class="view-title" style="margin-bottom:20px">👤 <span>Profile</span></div>
-    <div id="profile-content"></div>
+    <!-- PROFILE -->
+    <div id="view-profile" class="view">
+      <div class="page-header">
+        <div class="page-title">TASTE <span>PROFILE</span></div>
+        <div class="page-sub">Your viewing DNA — built from every rating</div>
+      </div>
+      <div id="profile-content"></div>
+    </div>
+
+    <!-- FRIENDS -->
+    <div id="view-friends" class="view">
+      <div class="page-header">
+        <div class="page-title">FRIENDS</div>
+        <div class="page-sub">See what your friends are watching and loving</div>
+      </div>
+      <div class="search-wrap" style="margin-bottom:20px">
+        <input class="search-input" id="user-search-input" placeholder="Search by username..." onkeydown="if(event.key==='Enter') searchUsers()"/>
+        <button class="btn-search" onclick="searchUsers()">FIND</button>
+      </div>
+      <div id="user-search-results" class="user-list" style="margin-bottom:24px"></div>
+      <div id="friend-requests-section"></div>
+      <div class="section-title" style="margin-top:20px">MY FRIENDS</div>
+      <div id="friends-list" class="user-list"></div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Movie detail modal -->
+<div id="modal-overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal" style="position:relative">
+    <button class="modal-close-btn" onclick="closeModal()">✕</button>
+    <img id="modal-poster" class="modal-poster-strip" src="" alt=""/>
+    <div class="modal-body">
+      <div class="modal-title" id="modal-title"></div>
+      <div class="modal-meta" id="modal-meta"></div>
+      <div class="modal-plot" id="modal-plot"></div>
+      <div class="modal-actions" id="modal-actions"></div>
+    </div>
   </div>
 </div>
 
-<!-- ══ MOVIE DETAIL MODAL ══════════════════════════════════════════════════ -->
-<div id="movie-modal" onclick="handleModalClick(event)">
-  <div class="modal-box" id="modal-box">
-    <button class="modal-close" onclick="closeMovieModal()">✕</button>
-    <div id="modal-content">
-      <div class="spinner" style="min-height:300px"><div class="spin-ring"></div> Loading…</div>
-    </div>
-  </div>
-</div>
-
+<!-- Toast -->
 <div id="toast"></div>
 
-<script>
-function showApp() {
-  document.getElementById("auth-screen").style.display = "none"
-  document.getElementById("app-screen").style.display  = "block"
-  document.getElementById("nav-username").textContent  = username
-  document.getElementById("nav-avatar").textContent    = (username||"?")[0].toUpperCase()
-  loadMyBehavior().then(() => loadRecommendations())
-}
-// Close modal when clicking outside the box
-function handleModalClick(e) {
-  if (e.target === document.getElementById("movie-modal")) closeMovieModal()
-}
-// Close on Escape key
-document.addEventListener("keydown", e => { if (e.key === "Escape") closeMovieModal() })
-</script>
 <script src="app.js"></script>
 </body>
 </html>
