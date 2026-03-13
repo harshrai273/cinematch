@@ -3,947 +3,183 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>CineMatch — Find Your Next Obsession</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
+  <title>Movie Recommendation App</title>
   <style>
-    :root {
-      --bg:        #080808;
-      --bg2:       #111111;
-      --bg3:       #1a1a1a;
-      --border:    rgba(255,255,255,0.07);
-      --accent:    #e8272e;
-      --accent2:   #ff6b35;
-      --gold:      #f5c842;
-      --text:      #f0f0f0;
-      --muted:     #666;
-      --muted2:    #444;
-      --green:     #22c55e;
-      --blue:      #3b82f6;
-      --card-w:    180px;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: sans-serif; background: #0f0f0f; color: #eee; min-height: 100vh; }
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    /* ── Auth ── */
+    #auth-screen { display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+    .auth-box { background: #1a1a1a; border-radius: 12px; padding: 32px; width: 100%; max-width: 400px; }
+    .auth-box h1 { text-align: center; margin-bottom: 24px; color: #e50914; font-size: 28px; }
+    .auth-tabs { display: flex; margin-bottom: 20px; border-radius: 8px; overflow: hidden; border: 1px solid #333; }
+    .auth-tab { flex: 1; padding: 10px; border: none; cursor: pointer; background: transparent; color: #888; font-weight: 600; font-size: 13px; letter-spacing: 1px; transition: all .2s; }
+    .auth-tab.active { background: #e50914; color: white; }
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 11px; color: #888; margin-bottom: 5px; letter-spacing: 1px; }
+    .field input { width: 100%; padding: 10px 12px; border-radius: 7px; border: 1px solid #333; background: #111; color: #eee; font-size: 14px; outline: none; }
+    .field input:focus { border-color: #e50914; }
+    .btn { width: 100%; padding: 12px; border-radius: 8px; border: none; cursor: pointer; font-size: 14px; font-weight: 700; letter-spacing: 1px; margin-top: 6px; }
+    .btn-red { background: #e50914; color: white; }
+    .btn-red:hover { background: #c40812; }
+    .error-msg { color: #f87171; font-size: 12px; margin-top: 8px; text-align: center; min-height: 18px; }
 
-    body {
-      font-family: 'DM Sans', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
-
-    /* ── Scrollbar ── */
-    ::-webkit-scrollbar { width: 4px; }
-    ::-webkit-scrollbar-track { background: var(--bg); }
-    ::-webkit-scrollbar-thumb { background: var(--muted2); border-radius: 2px; }
-
-    /* ══════════════════════════════════════
-       AUTH SCREEN
-    ══════════════════════════════════════ */
-    #auth-screen {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .auth-bg {
-      position: absolute; inset: 0;
-      background:
-        radial-gradient(ellipse 80% 60% at 20% 50%, rgba(232,39,46,0.12) 0%, transparent 60%),
-        radial-gradient(ellipse 60% 80% at 80% 20%, rgba(255,107,53,0.08) 0%, transparent 60%),
-        repeating-linear-gradient(0deg, transparent, transparent 80px, rgba(255,255,255,0.012) 80px, rgba(255,255,255,0.012) 81px),
-        repeating-linear-gradient(90deg, transparent, transparent 80px, rgba(255,255,255,0.012) 80px, rgba(255,255,255,0.012) 81px);
-    }
-
-    .auth-logo {
-      position: absolute;
-      top: 32px; left: 50%;
-      transform: translateX(-50%);
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 28px;
-      letter-spacing: 6px;
-      color: var(--accent);
-    }
-
-    .auth-box {
-      position: relative;
-      width: 100%;
-      max-width: 420px;
-      margin: 20px;
-      background: rgba(17,17,17,0.92);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 40px 36px;
-      backdrop-filter: blur(20px);
-      box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(232,39,46,0.1);
-      animation: fadeUp .4s ease;
-    }
-
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    .auth-headline {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 42px;
-      letter-spacing: 2px;
-      line-height: 1;
-      margin-bottom: 6px;
-    }
-
-    .auth-headline span { color: var(--accent); }
-
-    .auth-sub {
-      font-size: 13px;
-      color: var(--muted);
-      margin-bottom: 28px;
-      font-weight: 300;
-    }
-
-    .auth-tabs {
-      display: flex;
-      gap: 4px;
-      background: var(--bg);
-      border-radius: 8px;
-      padding: 4px;
-      margin-bottom: 24px;
-    }
-
-    .auth-tab {
-      flex: 1;
-      padding: 8px;
-      border: none;
-      border-radius: 6px;
-      background: transparent;
-      color: var(--muted);
-      font-family: 'DM Sans', sans-serif;
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 1.5px;
-      cursor: pointer;
-      transition: all .2s;
-    }
-
-    .auth-tab.active {
-      background: var(--accent);
-      color: white;
-    }
-
-    .field {
-      margin-bottom: 16px;
-    }
-
-    .field label {
-      display: block;
-      font-size: 10px;
-      letter-spacing: 2px;
-      color: var(--muted);
-      margin-bottom: 7px;
-      font-weight: 600;
-    }
-
-    .field input {
-      width: 100%;
-      padding: 12px 14px;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      color: var(--text);
-      font-family: 'DM Sans', sans-serif;
-      font-size: 14px;
-      outline: none;
-      transition: border-color .2s;
-    }
-
-    .field input:focus { border-color: var(--accent); }
-    .field input::placeholder { color: var(--muted2); }
-
-    .btn-primary {
-      width: 100%;
-      padding: 13px;
-      background: var(--accent);
-      border: none;
-      border-radius: 8px;
-      color: white;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 2px;
-      cursor: pointer;
-      transition: all .2s;
-      margin-top: 4px;
-    }
-
-    .btn-primary:hover { background: #c41f25; transform: translateY(-1px); }
-    .btn-primary:active { transform: translateY(0); }
-
-    .err-msg {
-      font-size: 12px;
-      color: #f87171;
-      text-align: center;
-      min-height: 18px;
-      margin-top: 10px;
-    }
-
-    /* ══════════════════════════════════════
-       APP SCREEN
-    ══════════════════════════════════════ */
+    /* ── App ── */
     #app-screen { display: none; }
-
-    /* ── Sidebar ── */
-    .sidebar {
-      position: fixed;
-      top: 0; left: 0;
-      width: 220px;
-      height: 100vh;
-      background: var(--bg2);
-      border-right: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      z-index: 100;
-      padding: 0 0 20px;
-    }
-
-    .sidebar-logo {
-      padding: 28px 24px 24px;
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 26px;
-      letter-spacing: 5px;
-      color: var(--accent);
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 16px;
-    }
-
-    .sidebar-logo span { color: var(--text); font-size: 10px; letter-spacing: 3px; display: block; margin-top: 2px; font-family: 'DM Sans', sans-serif; font-weight: 300; }
-
-    .nav-section {
-      padding: 0 12px;
-      margin-bottom: 6px;
-    }
-
-    .nav-section-label {
-      font-size: 9px;
-      letter-spacing: 2.5px;
-      color: var(--muted2);
-      padding: 0 12px;
-      margin-bottom: 4px;
-      font-weight: 600;
-    }
-
-    .nav-link {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 12px;
-      border-radius: 8px;
-      border: none;
-      background: transparent;
-      color: var(--muted);
-      font-family: 'DM Sans', sans-serif;
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      width: 100%;
-      text-align: left;
-      transition: all .15s;
-      position: relative;
-    }
-
-    .nav-link:hover { background: var(--bg3); color: var(--text); }
-
-    .nav-link.active {
-      background: rgba(232,39,46,0.12);
-      color: var(--text);
-    }
-
-    .nav-link.active::before {
-      content: '';
-      position: absolute;
-      left: 0; top: 20%; bottom: 20%;
-      width: 3px;
-      background: var(--accent);
-      border-radius: 0 2px 2px 0;
-    }
-
-    .nav-icon { font-size: 16px; width: 20px; text-align: center; }
-
-    .nav-badge {
-      margin-left: auto;
-      background: var(--accent);
-      color: white;
-      font-size: 10px;
-      font-weight: 700;
-      padding: 2px 6px;
-      border-radius: 10px;
-      min-width: 18px;
-      text-align: center;
-    }
-
-    .sidebar-user {
-      margin-top: auto;
-      padding: 16px 24px;
-      border-top: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .user-avatar {
-      width: 34px; height: 34px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      display: flex; align-items: center; justify-content: center;
-      font-weight: 700; font-size: 14px;
-      flex-shrink: 0;
-    }
-
-    .user-info { flex: 1; overflow: hidden; }
-    .user-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .user-role { font-size: 10px; color: var(--muted); letter-spacing: 1px; }
-
-    .btn-logout {
-      background: transparent;
-      border: none;
-      color: var(--muted);
-      cursor: pointer;
-      font-size: 16px;
-      padding: 4px;
-      transition: color .2s;
-    }
-    .btn-logout:hover { color: var(--accent); }
-
-    /* ── Main content ── */
-    .main {
-      margin-left: 220px;
-      min-height: 100vh;
-      padding: 32px 36px;
-    }
+    nav { background: #111; border-bottom: 1px solid #222; padding: 0 20px; display: flex; align-items: center; gap: 16px; height: 54px; position: sticky; top: 0; z-index: 10; }
+    nav h2 { color: #e50914; font-size: 20px; letter-spacing: 2px; }
+    .nav-links { display: flex; gap: 4px; }
+    .nav-link { background: transparent; border: none; color: #888; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; transition: all .15s; }
+    .nav-link.active, .nav-link:hover { background: rgba(229,9,20,.12); color: #e50914; }
+    .nav-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+    .nav-user { font-size: 13px; color: #aaa; }
+    .btn-sm { padding: 6px 14px; border-radius: 6px; border: 1px solid #333; background: transparent; color: #888; cursor: pointer; font-size: 12px; }
+    .btn-sm:hover { background: #222; color: #eee; }
 
     /* ── Views ── */
-    .view { display: none; animation: fadeIn .25s ease; }
+    .view { display: none; padding: 24px 20px; max-width: 1200px; margin: 0 auto; }
     .view.active { display: block; }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-    /* ── Page header ── */
-    .page-header {
-      margin-bottom: 28px;
-    }
-
-    .page-title {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 36px;
-      letter-spacing: 2px;
-      line-height: 1;
-    }
-
-    .page-title span { color: var(--accent); }
-
-    .page-sub {
-      font-size: 13px;
-      color: var(--muted);
-      margin-top: 4px;
-      font-weight: 300;
-    }
 
     /* ── Search bar ── */
-    .search-wrap {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 28px;
-    }
-
-    .search-input {
-      flex: 1;
-      padding: 13px 18px;
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      color: var(--text);
-      font-family: 'DM Sans', sans-serif;
-      font-size: 14px;
-      outline: none;
-      transition: border-color .2s;
-    }
-
-    .search-input:focus { border-color: var(--accent); }
-    .search-input::placeholder { color: var(--muted2); }
-
-    .btn-search {
-      padding: 13px 24px;
-      background: var(--accent);
-      border: none;
-      border-radius: 10px;
-      color: white;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 1px;
-      cursor: pointer;
-      transition: background .2s;
-    }
-
-    .btn-search:hover { background: #c41f25; }
+    .search-bar { display: flex; gap: 10px; margin-bottom: 24px; }
+    .search-bar input { flex: 1; padding: 10px 14px; border-radius: 8px; border: 1px solid #333; background: #1a1a1a; color: #eee; font-size: 14px; outline: none; }
+    .search-bar input:focus { border-color: #e50914; }
+    .search-bar button { padding: 10px 20px; background: #e50914; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 700; }
 
     /* ── Movie grid ── */
-    .movie-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(var(--card-w), 1fr));
-      gap: 20px;
-    }
+    .movie-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 16px; }
+    .movie-card { background: #1a1a1a; border-radius: 10px; overflow: hidden; transition: transform .2s; cursor: pointer; border: 1px solid #222; }
+    .movie-card:hover { transform: translateY(-4px); border-color: #444; }
+    .movie-card img { width: 100%; aspect-ratio: 2/3; object-fit: cover; background: #222; display: block; }
+    .movie-card-info { padding: 10px; }
+    .movie-card-title { font-size: 13px; font-weight: 600; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .movie-card-year { font-size: 11px; color: #888; margin-bottom: 8px; }
+    .action-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+    .action-btn { padding: 5px; border: 1px solid #333; background: transparent; color: #aaa; border-radius: 4px; cursor: pointer; font-size: 10px; transition: all .12s; }
+    .action-btn:hover { background: #333; color: #fff; }
+    .action-btn.liked { border-color: #ef4444; color: #ef4444; background: rgba(239,68,68,.1); }
+    .action-btn.watched { border-color: #22c55e; color: #22c55e; background: rgba(34,197,94,.1); }
+    .action-btn.disliked { border-color: #64748b; color: #64748b; background: rgba(100,116,139,.1); }
+    .action-btn.skipped { border-color: #eab308; color: #eab308; background: rgba(234,179,8,.1); }
 
-    .movie-card {
-      background: var(--bg2);
-      border-radius: 12px;
-      overflow: hidden;
-      border: 1px solid var(--border);
-      transition: transform .2s, border-color .2s, box-shadow .2s;
-      cursor: pointer;
-    }
+    /* ── Friends ── */
+    .section-title { font-size: 13px; letter-spacing: 2px; color: #888; margin-bottom: 14px; font-weight: 700; }
+    .user-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px; }
+    .user-row { display: flex; align-items: center; gap: 12px; background: #1a1a1a; padding: 12px 16px; border-radius: 8px; border: 1px solid #222; }
+    .user-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #e50914, #7c3aed); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; flex-shrink: 0; }
+    .user-name { font-size: 14px; font-weight: 600; flex: 1; }
+    .badge { font-size: 10px; padding: 2px 8px; border-radius: 10px; background: #e50914; color: white; font-weight: 700; }
+    .empty-state { text-align: center; padding: 60px 20px; color: #555; }
+    .empty-state .icon { font-size: 40px; margin-bottom: 12px; }
+    .empty-state p { font-size: 14px; }
 
-    .movie-card:hover {
-      transform: translateY(-6px);
-      border-color: rgba(232,39,46,0.3);
-      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-    }
-
-    .card-poster {
-      width: 100%;
-      aspect-ratio: 2/3;
-      object-fit: cover;
-      display: block;
-      background: var(--bg3);
-    }
-
-    .card-body { padding: 12px; }
-
-    .card-title {
-      font-size: 13px;
-      font-weight: 600;
-      margin-bottom: 3px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .card-meta {
-      font-size: 11px;
-      color: var(--muted);
-      margin-bottom: 10px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .card-rating {
-      color: var(--gold);
-      font-weight: 600;
-    }
-
-    /* Match bar */
-    .match-bar-wrap {
-      margin-bottom: 10px;
-    }
-
-    .match-bar-top {
-      display: flex;
-      justify-content: space-between;
-      font-size: 9px;
-      letter-spacing: 1.5px;
-      color: var(--muted);
-      margin-bottom: 4px;
-      font-weight: 600;
-    }
-
-    .match-pct { font-weight: 700; }
-    .match-pct.high { color: var(--green); }
-    .match-pct.med  { color: var(--gold); }
-    .match-pct.low  { color: var(--accent); }
-
-    .match-bar-bg {
-      height: 2px;
-      background: var(--bg3);
-      border-radius: 1px;
-    }
-
-    .match-bar-fill {
-      height: 2px;
-      border-radius: 1px;
-      transition: width .5s ease;
-    }
-
-    .match-bar-fill.high { background: var(--green); }
-    .match-bar-fill.med  { background: var(--gold); }
-    .match-bar-fill.low  { background: var(--accent); }
-
-    /* Action buttons */
-    .action-btns {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 5px;
-    }
-
-    .action-btn {
-      padding: 6px 4px;
-      border-radius: 6px;
-      border: 1px solid var(--border);
-      background: transparent;
-      color: var(--muted);
-      font-family: 'DM Sans', sans-serif;
-      font-size: 10px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all .15s;
-      letter-spacing: .5px;
-    }
-
-    .action-btn:hover { background: var(--bg3); color: var(--text); }
-    .action-btn.liked    { border-color: #ef4444; color: #ef4444; background: rgba(239,68,68,.1); }
-    .action-btn.watched  { border-color: var(--green); color: var(--green); background: rgba(34,197,94,.1); }
-    .action-btn.disliked { border-color: var(--muted2); color: var(--muted); background: rgba(100,116,139,.1); }
-    .action-btn.skipped  { border-color: var(--gold); color: var(--gold); background: rgba(245,200,66,.1); }
-
-    /* Streaming badges */
-    .streaming-row {
-      display: flex;
-      gap: 4px;
-      flex-wrap: wrap;
-      margin-top: 8px;
-    }
-
-    .stream-badge {
-      font-size: 9px;
-      padding: 2px 6px;
-      border-radius: 4px;
-      background: var(--bg3);
-      color: var(--muted);
-      border: 1px solid var(--border);
-      letter-spacing: .5px;
-      font-weight: 500;
-    }
-
-    /* ── Section title ── */
-    .section-title {
-      font-size: 10px;
-      letter-spacing: 3px;
-      color: var(--muted);
-      font-weight: 700;
-      margin-bottom: 14px;
-    }
-
-    /* ── Empty state ── */
-    .empty-state {
-      text-align: center;
-      padding: 80px 20px;
-      color: var(--muted);
-    }
-
-    .empty-icon { font-size: 48px; margin-bottom: 16px; opacity: .4; }
-    .empty-text { font-size: 14px; font-weight: 300; }
-
-    /* ── Spinner ── */
-    .spinner {
-      text-align: center;
-      padding: 60px;
-      color: var(--muted);
-      font-size: 13px;
-      font-weight: 300;
-      letter-spacing: 2px;
-    }
-
-    .spinner::after {
-      content: '';
-      display: block;
-      width: 32px; height: 32px;
-      border: 2px solid var(--border);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      margin: 16px auto 0;
-      animation: spin .8s linear infinite;
-    }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* ── Stats cards ── */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 14px;
-      margin-bottom: 32px;
-    }
-
-    .stat-card {
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 20px;
-      text-align: center;
-    }
-
-    .stat-icon { font-size: 24px; margin-bottom: 8px; }
-    .stat-num { font-family: 'Bebas Neue', sans-serif; font-size: 36px; letter-spacing: 1px; line-height: 1; }
-    .stat-label { font-size: 10px; color: var(--muted); letter-spacing: 2px; margin-top: 4px; font-weight: 600; }
-
-    /* ── Taste bars ── */
-    .taste-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 12px;
-      margin-bottom: 32px;
-    }
-
-    .taste-item {
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 14px 16px;
-    }
-
-    .taste-label { font-size: 12px; font-weight: 600; margin-bottom: 8px; }
-    .taste-bg { height: 3px; background: var(--bg3); border-radius: 2px; }
-    .taste-fill { height: 3px; background: var(--accent); border-radius: 2px; transition: width .5s; }
-    .taste-pts { font-size: 11px; color: var(--accent); margin-top: 5px; font-weight: 600; }
-
-    /* ── Friend rows ── */
-    .user-list { display: flex; flex-direction: column; gap: 8px; }
-
-    .user-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 12px 16px;
-      transition: border-color .15s;
-    }
-
-    .user-row:hover { border-color: rgba(232,39,46,0.2); }
-
-    .user-row-name { font-size: 14px; font-weight: 600; flex: 1; }
-    .user-row-sub { font-size: 11px; color: var(--muted); }
-
-    .btn-sm {
-      padding: 6px 14px;
-      border-radius: 6px;
-      border: 1px solid var(--border);
-      background: transparent;
-      color: var(--muted);
-      font-family: 'DM Sans', sans-serif;
-      font-size: 11px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all .15s;
-      white-space: nowrap;
-    }
-
-    .btn-sm:hover { background: var(--bg3); color: var(--text); }
-    .btn-sm.green { border-color: var(--green); color: var(--green); }
-    .btn-sm.green:hover { background: rgba(34,197,94,.1); }
-    .btn-sm.red { border-color: var(--accent); color: var(--accent); }
-    .btn-sm.red:hover { background: rgba(232,39,46,.1); }
-    .btn-sm.blue { border-color: var(--blue); color: var(--blue); }
-    .btn-sm.blue:hover { background: rgba(59,130,246,.1); }
-
-    /* ── Rec basis ── */
-    .rec-basis {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 11px;
-      color: var(--muted);
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 5px 12px;
-      margin-bottom: 20px;
-      letter-spacing: .5px;
-    }
-
-    /* ── My List groups ── */
-    .list-group { margin-bottom: 36px; }
-
-    .list-group-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 16px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .list-group-title { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 2px; }
-    .list-group-count { font-size: 11px; color: var(--muted); background: var(--bg3); padding: 2px 8px; border-radius: 10px; }
+    /* ── Taste profile ── */
+    .taste-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; margin-bottom: 24px; }
+    .taste-item { background: #1a1a1a; border-radius: 8px; padding: 12px; border: 1px solid #222; }
+    .taste-label { font-size: 11px; color: #888; margin-bottom: 6px; }
+    .taste-bar-bg { height: 4px; background: #333; border-radius: 2px; }
+    .taste-bar { height: 4px; background: #e50914; border-radius: 2px; transition: width .4s; }
+    .taste-score { font-size: 18px; font-weight: 700; color: #e50914; }
 
     /* ── Toast ── */
-    #toast {
-      position: fixed;
-      bottom: 24px; right: 24px;
-      padding: 12px 20px;
-      background: var(--bg2);
-      border-left: 3px solid var(--accent);
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 500;
-      display: none;
-      z-index: 9999;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-      animation: slideIn .2s ease;
-      max-width: 300px;
-    }
+    #toast { position: fixed; bottom: 20px; right: 20px; padding: 12px 20px; background: #222; border-left: 3px solid #e50914; border-radius: 6px; font-size: 13px; display: none; z-index: 999; animation: slideIn .2s ease; }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    /* ── Movie detail modal ── */
-    #modal-overlay {
-      display: none;
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,0.85);
-      z-index: 500;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      backdrop-filter: blur(4px);
-    }
-
-    #modal-overlay.open { display: flex; }
-
-    .modal {
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      max-width: 680px;
-      width: 100%;
-      max-height: 85vh;
-      overflow-y: auto;
-      animation: fadeUp .25s ease;
-    }
-
-    .modal-poster-strip {
-      width: 100%;
-      height: 280px;
-      object-fit: cover;
-      object-position: top;
-      display: block;
-      border-radius: 16px 16px 0 0;
-      background: var(--bg3);
-    }
-
-    .modal-body { padding: 24px 28px 28px; }
-
-    .modal-title {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 32px;
-      letter-spacing: 2px;
-      margin-bottom: 6px;
-    }
-
-    .modal-meta {
-      display: flex;
-      gap: 14px;
-      font-size: 12px;
-      color: var(--muted);
-      margin-bottom: 16px;
-      flex-wrap: wrap;
-    }
-
-    .modal-meta span { display: flex; align-items: center; gap: 4px; }
-    .modal-plot { font-size: 14px; line-height: 1.7; color: #bbb; font-weight: 300; margin-bottom: 20px; }
-
-    .modal-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-    .modal-close-btn {
-      position: absolute;
-      top: 16px; right: 16px;
-      width: 36px; height: 36px;
-      border-radius: 50%;
-      background: rgba(0,0,0,0.6);
-      border: 1px solid var(--border);
-      color: var(--text);
-      font-size: 16px;
-      cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-    }
-
-    /* ── Responsive ── */
-    @media (max-width: 768px) {
-      .sidebar { width: 60px; }
-      .sidebar-logo span, .nav-link span:not(.nav-icon), .sidebar-user .user-info, .sidebar-user .btn-logout, .nav-section-label { display: none; }
-      .nav-link { justify-content: center; padding: 12px; }
-      .sidebar-logo { padding: 20px; text-align: center; font-size: 20px; }
-      .main { margin-left: 60px; padding: 20px 16px; }
-      .stats-grid { grid-template-columns: repeat(2,1fr); }
-    }
+    .spinner { text-align: center; padding: 40px; color: #555; font-size: 14px; }
+    h3.section-h { font-size: 16px; margin-bottom: 16px; color: #eee; }
   </style>
 </head>
 <body>
 
-<!-- ═══════════ AUTH ═══════════ -->
+<!-- AUTH -->
 <div id="auth-screen">
-  <div class="auth-bg"></div>
-  <div class="auth-logo">CINEMATCH</div>
-
   <div class="auth-box">
-    <div class="auth-headline">YOUR NEXT<br><span>OBSESSION</span><br>AWAITS.</div>
-    <div class="auth-sub">Personalised film & series recommendations, powered by your taste.</div>
-
+    <h1>🎬 CINEMATCH</h1>
     <div class="auth-tabs">
       <button class="auth-tab active" onclick="switchTab('login')">SIGN IN</button>
-      <button class="auth-tab" onclick="switchTab('signup')">JOIN FREE</button>
+      <button class="auth-tab" onclick="switchTab('signup')">SIGN UP</button>
     </div>
-
     <!-- Login -->
     <div id="login-form">
-      <div class="field"><label>EMAIL ADDRESS</label><input type="email" id="login-email" placeholder="you@example.com"/></div>
+      <div class="field"><label>EMAIL</label><input type="email" id="login-email" placeholder="you@email.com"/></div>
       <div class="field"><label>PASSWORD</label><input type="password" id="login-password" placeholder="••••••••"/></div>
-      <button class="btn-primary" onclick="login()">SIGN IN →</button>
-      <div class="err-msg" id="login-error"></div>
+      <button class="btn btn-red" onclick="login()">SIGN IN</button>
+      <div class="error-msg" id="login-error"></div>
     </div>
-
     <!-- Signup -->
     <div id="signup-form" style="display:none">
-      <div class="field"><label>USERNAME</label><input type="text" id="signup-username" placeholder="choose a username"/></div>
-      <div class="field"><label>EMAIL ADDRESS</label><input type="email" id="signup-email" placeholder="you@example.com"/></div>
+      <div class="field"><label>USERNAME</label><input type="text" id="signup-username" placeholder="choose_username"/></div>
+      <div class="field"><label>EMAIL</label><input type="email" id="signup-email" placeholder="you@email.com"/></div>
       <div class="field"><label>PASSWORD</label><input type="password" id="signup-password" placeholder="min 4 characters"/></div>
       <div class="field"><label>CONFIRM PASSWORD</label><input type="password" id="signup-confirm" placeholder="••••••••"/></div>
-      <button class="btn-primary" onclick="register()">CREATE ACCOUNT →</button>
-      <div class="err-msg" id="signup-error"></div>
+      <button class="btn btn-red" onclick="register()">CREATE ACCOUNT</button>
+      <div class="error-msg" id="signup-error"></div>
     </div>
   </div>
 </div>
 
-<!-- ═══════════ APP ═══════════ -->
+<!-- APP -->
 <div id="app-screen">
-
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <div class="sidebar-logo">
-      CINE<span style="color:var(--text)">MATCH</span>
-      <span>DISCOVER · RATE · SHARE</span>
+  <nav>
+    <h2>CINEMATCH</h2>
+    <div class="nav-links">
+      <button class="nav-link active" onclick="showView('search')">🔍 Search</button>
+      <button class="nav-link" onclick="showView('recommendations')">✦ For You</button>
+      <button class="nav-link" onclick="showView('mylist')">📋 My List</button>
+      <button class="nav-link" onclick="showView('friends')">👥 Friends</button>
+      <button class="nav-link" onclick="showView('profile')">👤 Profile</button>
     </div>
-
-    <div class="nav-section-label">DISCOVER</div>
-    <div class="nav-section">
-      <button class="nav-link active" onclick="showView('search', this)">
-        <span class="nav-icon">🔍</span><span>Search</span>
-      </button>
-      <button class="nav-link" onclick="showView('recommendations', this)">
-        <span class="nav-icon">✦</span><span>For You</span>
-      </button>
+    <div class="nav-right">
+      <span class="nav-user" id="nav-username"></span>
+      <button class="btn-sm" onclick="logout()">Logout</button>
     </div>
+  </nav>
 
-    <div class="nav-section-label" style="margin-top:12px">LIBRARY</div>
-    <div class="nav-section">
-      <button class="nav-link" onclick="showView('mylist', this)">
-        <span class="nav-icon">📋</span><span>My List</span>
-      </button>
-      <button class="nav-link" onclick="showView('profile', this)">
-        <span class="nav-icon">📊</span><span>Taste Profile</span>
-      </button>
+  <!-- SEARCH VIEW -->
+  <div id="view-search" class="view active">
+    <div class="search-bar">
+      <input id="search-input" placeholder="Search any movie or show..." onkeydown="if(event.key==='Enter') searchMovies()"/>
+      <button onclick="searchMovies()">SEARCH</button>
     </div>
+    <div id="search-results" class="movie-grid"></div>
+  </div>
 
-    <div class="nav-section-label" style="margin-top:12px">SOCIAL</div>
-    <div class="nav-section">
-      <button class="nav-link" id="friends-nav-btn" onclick="showView('friends', this)">
-        <span class="nav-icon">👥</span><span>Friends</span>
-        <span class="nav-badge" id="friend-req-badge" style="display:none">0</span>
-      </button>
+  <!-- RECOMMENDATIONS VIEW -->
+  <div id="view-recommendations" class="view">
+    <h3 class="section-h">✦ Recommended For You</h3>
+    <div id="rec-basis" style="font-size:12px;color:#888;margin-bottom:16px;"></div>
+    <div id="rec-results" class="movie-grid"></div>
+  </div>
+
+  <!-- MY LIST VIEW -->
+  <div id="view-mylist" class="view">
+    <h3 class="section-h">📋 My Watch History</h3>
+    <div id="mylist-content"></div>
+  </div>
+
+  <!-- FRIENDS VIEW -->
+  <div id="view-friends" class="view">
+    <!-- Search users -->
+    <h3 class="section-h">👥 Friends</h3>
+    <div class="search-bar">
+      <input id="user-search-input" placeholder="Find users by username..." onkeydown="if(event.key==='Enter') searchUsers()"/>
+      <button onclick="searchUsers()">FIND</button>
     </div>
+    <div id="user-search-results" class="user-list"></div>
+    <!-- Pending requests -->
+    <div id="friend-requests-section"></div>
+    <!-- My friends -->
+    <div class="section-title">MY FRIENDS</div>
+    <div id="friends-list" class="user-list"></div>
+  </div>
 
-    <div class="sidebar-user">
-      <div class="user-avatar" id="sidebar-avatar">?</div>
-      <div class="user-info">
-        <div class="user-name" id="sidebar-username">—</div>
-        <div class="user-role">MEMBER</div>
-      </div>
-      <button class="btn-logout" onclick="logout()" title="Logout">↩</button>
-    </div>
-  </aside>
-
-  <!-- Main -->
-  <main class="main">
-
-    <!-- SEARCH -->
-    <div id="view-search" class="view active">
-      <div class="page-header">
-        <div class="page-title">SEARCH <span>FILMS</span></div>
-        <div class="page-sub">Find any movie or series and rate it to train your recommendations</div>
-      </div>
-      <div class="search-wrap">
-        <input class="search-input" id="search-input" placeholder="Search movies, shows, directors..." onkeydown="if(event.key==='Enter') searchMovies()"/>
-        <button class="btn-search" onclick="searchMovies()">SEARCH</button>
-      </div>
-      <div id="search-results" class="movie-grid"></div>
-    </div>
-
-    <!-- FOR YOU -->
-    <div id="view-recommendations" class="view">
-      <div class="page-header">
-        <div class="page-title">FOR <span>YOU</span></div>
-        <div class="page-sub">ML-powered picks based on your unique taste profile</div>
-      </div>
-      <div id="rec-basis"></div>
-      <div id="rec-results" class="movie-grid"></div>
-    </div>
-
-    <!-- MY LIST -->
-    <div id="view-mylist" class="view">
-      <div class="page-header">
-        <div class="page-title">MY <span>LIST</span></div>
-        <div class="page-sub">Everything you've rated or saved</div>
-      </div>
-      <div id="mylist-content"></div>
-    </div>
-
-    <!-- PROFILE -->
-    <div id="view-profile" class="view">
-      <div class="page-header">
-        <div class="page-title">TASTE <span>PROFILE</span></div>
-        <div class="page-sub">Your viewing DNA — built from every rating</div>
-      </div>
-      <div id="profile-content"></div>
-    </div>
-
-    <!-- FRIENDS -->
-    <div id="view-friends" class="view">
-      <div class="page-header">
-        <div class="page-title">FRIENDS</div>
-        <div class="page-sub">See what your friends are watching and loving</div>
-      </div>
-      <div class="search-wrap" style="margin-bottom:20px">
-        <input class="search-input" id="user-search-input" placeholder="Search by username..." onkeydown="if(event.key==='Enter') searchUsers()"/>
-        <button class="btn-search" onclick="searchUsers()">FIND</button>
-      </div>
-      <div id="user-search-results" class="user-list" style="margin-bottom:24px"></div>
-      <div id="friend-requests-section"></div>
-      <div class="section-title" style="margin-top:20px">MY FRIENDS</div>
-      <div id="friends-list" class="user-list"></div>
-    </div>
-
-  </main>
-</div>
-
-<!-- Movie detail modal -->
-<div id="modal-overlay" onclick="if(event.target===this)closeModal()">
-  <div class="modal" style="position:relative">
-    <button class="modal-close-btn" onclick="closeModal()">✕</button>
-    <img id="modal-poster" class="modal-poster-strip" src="" alt=""/>
-    <div class="modal-body">
-      <div class="modal-title" id="modal-title"></div>
-      <div class="modal-meta" id="modal-meta"></div>
-      <div class="modal-plot" id="modal-plot"></div>
-      <div class="modal-actions" id="modal-actions"></div>
-    </div>
+  <!-- PROFILE VIEW -->
+  <div id="view-profile" class="view">
+    <h3 class="section-h">👤 My Profile</h3>
+    <div id="profile-content"></div>
   </div>
 </div>
 
-<!-- Toast -->
 <div id="toast"></div>
 
 <script src="app.js"></script>
