@@ -15,13 +15,7 @@ const JWT_SECRET = process.env.JWT_SECRET || "change_me_in_production"
 
 app.use(cors())
 app.use(express.json())
-
-const path = require("path")
-app.use(express.static(path.join(__dirname, "public")))
-
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"))
-})
+app.use(express.static(__dirname))
 
 mongoose.connect(process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/movieApp")
   .then(() => console.log("✅ MongoDB connected"))
@@ -209,12 +203,16 @@ app.get("/discover", async (req, res) => {
     const queries = [
       // Hollywood
       "action 2023", "thriller 2023", "drama 2023", "comedy 2023",
+      "romance 2023", "crime thriller 2023", "sci-fi 2023", "horror 2023",
+      "adventure 2023", "mystery thriller 2023", "biography 2023", "fantasy 2023",
       // Bollywood / Indian
       "Bollywood 2023", "Hindi film 2023", "Tamil movie 2023", "Telugu movie 2023",
+      "Bollywood 2022", "Malayalam movie 2023", "Hindi thriller 2023", "Bollywood drama 2023",
       // Korean / Asian
-      "Korean movie 2023", "Korean thriller 2022", "Japanese anime film",
+      "Korean movie 2023", "Korean thriller 2022", "Japanese anime film", "Korean drama film 2023",
       // Other popular
-      "crime thriller 2023", "adventure 2023", "mystery thriller 2022", "sci-fi 2023"
+      "action 2022", "thriller 2022", "drama 2022", "comedy 2022",
+      "Bollywood action 2022", "Tamil movie 2022", "Korean movie 2022", "anime movie 2023"
     ]
 
     const results = await Promise.allSettled(
@@ -233,8 +231,8 @@ app.get("/discover", async (req, res) => {
       }
     })
 
-    // Enrich top 16 with full details (plot, rating, genre)
-    const top = movies.slice(0, 16)
+    // Enrich top 32 with full details (plot, rating, genre)
+    const top = movies.slice(0, 32)
     const enriched = await Promise.allSettled(top.map(m => fetchFullDetails(m.imdbID)))
 
     const final = enriched.map((r, i) => {
@@ -298,7 +296,10 @@ app.get("/recommend", auth, async (req, res) => {
     }
 
     const seenIds = new Set(history.map(h => h.movieId))
-    const W = { liked: 3, watched: 2, saved: 1, skipped: -1, disliked: -2 }
+    const W = {
+      loved: 4, liked: 3, watched: 2, rewatch: 3, recommend: 2,
+      watchlist: 1, saved: 1, skipped: -1, disliked: -2
+    }
 
     // ── Build genre map ───────────────────────────────────────────────────────
     const genreMap = {}
@@ -381,15 +382,15 @@ app.get("/recommend", auth, async (req, res) => {
     })
 
     // ── Collaborative filtering ───────────────────────────────────────────────
-    const likedIds = history.filter(h => h.action === "liked").map(h => h.movieId)
+    const likedIds = history.filter(h => ["liked","loved","watched","rewatch"].includes(h.action)).map(h => h.movieId)
     if (likedIds.length > 0) {
       const similarUsers = await Behavior.find({
-        movieId: { $in: likedIds }, action: "liked", userId: { $ne: userId }
+        movieId: { $in: likedIds }, action: { $in: ["liked","loved","watched"] }, userId: { $ne: userId }
       }).distinct("userId")
 
       if (similarUsers.length > 0) {
         const collabMovies = await Behavior.find({
-          userId: { $in: similarUsers }, action: "liked",
+          userId: { $in: similarUsers }, action: { $in: ["liked","loved","watched"] },
           movieId: { $nin: [...seenIds] }
         }).limit(30)
 
