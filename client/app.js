@@ -1,4 +1,4 @@
-const API = "http://localhost:3000"
+const API = window.location.origin
 
 let token      = localStorage.getItem("token")    || null
 let userId     = localStorage.getItem("userId")   || null
