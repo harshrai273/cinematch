@@ -13,7 +13,7 @@ const BehaviorSchema = new mongoose.Schema({
   // What the user did
   action: {
     type: String,
-    enum: ["liked", "disliked", "watched", "skipped", "saved"],
+    enum: ["loved", "liked", "watched", "watchlist", "rewatch", "recommend", "disliked", "skipped", "saved"],
     required: true
   },
 
